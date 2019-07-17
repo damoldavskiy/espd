@@ -1,4 +1,4 @@
-﻿\NeedsTeXFormat{LaTeX2e}
+\NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{espd}[2019/07/15 GOST 19]
 \RequirePackage[T2A]{fontenc}
 \RequirePackage{graphicx}
@@ -29,8 +29,8 @@
 \renewcommand{\normalsize}{\fontsize{12pt}{18pt}\selectfont}
 \newcommand{\titlesize}{\fontsize{14pt}{21pt}\selectfont}
 \newcommand{\approvalsize}{\fontsize{16pt}{24pt}\selectfont}
-\newcommand{\sectionsize}{\fontsize{20pt}{30pt}\selectfont}
-\newcommand{\subsectionsize}{\fontsize{18pt}{27pt}\selectfont}
+\newcommand{\sectionsize}{\fontsize{20pt}{20pt}\selectfont}
+\newcommand{\subsectionsize}{\fontsize{18pt}{18pt}\selectfont}
 \newcommand{\attachmentsize}{\fontsize{18pt}{27pt}\selectfont}
 \newcommand{\tabletextsize}{\fontsize{10pt}{15pt}\selectfont}
 
@@ -48,12 +48,11 @@
 \setlength{\textwidth}{180mm}
 \setlength{\textheight}{257mm}
 \setlength{\parindent}{10mm}
-\setlength{\parskip}{1mm}
+\setlength{\parskip}{2mm}
 \setlength{\headheight}{10mm}
 \setlength{\headsep}{7.5mm}
-\setlength{\footskip}{0mm}
 \setlength{\arrayrulewidth}{0.1pt}
-\def\@seccntformat#1{\csname the#1\endcsname\hspace{1ex}}
+\def\@seccntformat#1{\csname the#1\endcsname\hspace{4mm}}
 
 \DeclareOption{techtask}{
   \type{Техническое задание}
@@ -110,10 +109,10 @@
 \def\wordsign{Подп.}
 \def\worddate{Дата}
 \def\wordchanges{Изм.}
-\def\wordchanged{Изменен-ных}
-\def\wordreplaced{Заменен-ных}
-\def\wordnew{Новых}
-\def\wordannulled{Аннули-рованных}
+\def\wordchanged{изменен-ных}
+\def\wordreplaced{заменен-ных}
+\def\wordnew{новых}
+\def\wordannulled{аннули-рованных}
 
 % Переменные
 \var{company}
@@ -244,9 +243,7 @@
 
 % Создает ячейку с центрованным текстом внутри с настраиваемой реальной высотой
 % \def{width}{height}{realheight}{text}
-\def\vcell#1#2#3#4{
-  \vbox to #2{\hbox{\parbox[c][#3][c]{#1}{\centering #4}}\vss}%
-}
+\def\vcell#1#2#3#4{\parbox[c][#3][b]{#1}{\vbox to #2{\cell{#1}{#2}{#4}\vss}}}
 
 % СЕКЦИОНИРОВАНИЕ
 
@@ -264,10 +261,10 @@
 \renewcommand{\theparagraph}{\arabic{section}.\arabic{subsection}.\arabic{paragraph}.}
 \renewcommand{\thesubparagraph}{\arabic{section}.\arabic{subsection}.\arabic{paragraph}.\arabic{subparagraph}.}
 \renewcommand{\theattachment}{\arabic{attachment}}
-\newcommand{\section}{\newpage\@startsection{section}{1}{0mm}{\z@}{0.1pt}{\centering\sectionsize\bfseries\MakeUppercase}}
-\newcommand{\subsection}{\@startsection{subsection}{2}{8mm}{\z@}{0.1pt}{\subsectionsize\bfseries}}
-\newcommand{\paragraph}{\@startsection{paragraph}{3}{4mm}{\z@}{0.1pt}{\subsectionsize\bfseries}}
-\newcommand{\subparagraph}{\@startsection{subparagraph}{4}{4mm}{\z@}{0.1pt}{\subsectionsize\bfseries}}
+\newcommand{\section}{\newpage\@startsection{section}{1}{\parindent}{\z@}{4mm}{\centering\sectionsize\bfseries\MakeUppercase}}
+\newcommand{\subsection}{\@startsection{subsection}{2}{\parindent}{4mm}{2mm}{\subsectionsize\bfseries}}
+\newcommand{\paragraph}{\@startsection{paragraph}{3}{\parindent}{4mm}{2mm}{\subsectionsize\bfseries}}
+\newcommand{\subparagraph}{\@startsection{subparagraph}{4}{\parindent}{4mm}{2mm}{\subsectionsize\bfseries}}
 
 % Аннотация
 \newcommand{\annotation}{\newpage{\centering\sectionsize\bfseries\MakeUppercase{\wordannotation}\par}}
@@ -283,9 +280,9 @@
       \hline
       \multicolumn{10}{|c|}{\cell{185mm}{10mm}{\normalsize \wordregistration}} \\
       \hline
-      \multicolumn{5}{|c|}{\cell{88mm}{6mm}{\wordsheetnumber}} & \vcell{20mm}{6mm}{25mm}{\wordsheetsindoc} & \vcell{25mm}{6mm}{25mm}{\worddocnumber} & \vcell{25mm}{6mm}{25mm}{\wordincldocanddate} & \vcell{15mm}{6mm}{25mm}{\wordsign} & \vcell{12mm}{6mm}{25mm}{\worddate} \\
+      \multicolumn{5}{|c|}{\cell{88mm}{6mm}{\wordsheetnumber}} & & & & & \\
       \cline{1-5}
-      \cell{8mm}{19mm}{\wordchanges} & \cell{20mm}{19mm}{\wordchanged} & \cell{20mm}{19mm}{\wordreplaced} & \cell{20mm}{19mm}{\wordnew} & \cell{20mm}{19mm}{\wordannulled} & & & & & \\
+      \cell{8mm}{19mm}{\wordchanges} & \cell{20mm}{19mm}{\wordchanged} & \cell{20mm}{19mm}{\wordreplaced} & \cell{20mm}{19mm}{\wordnew} & \cell{20mm}{19mm}{\wordannulled} & \vcell{20mm}{25mm}{19mm}{\wordsheetsindoc} & \vcell{25mm}{25mm}{19mm}{\worddocnumber} & \vcell{25mm}{25mm}{19mm}{\wordincldocanddate} & \vcell{15mm}{25mm}{19mm}{\wordsign} & \vcell{12mm}{25mm}{19mm}{\worddate} \\
       \hline
       \cell{8mm}{8mm}{} & & & & & & & & & \\
       \hline
@@ -375,7 +372,7 @@
 \begin{titlepage}
   \reversemarginpar
   \setlength{\marginparsep}{12mm}
-  \marginpar{\vskip 11cm \hbox{\rotatebox{90}{\record}}}
+  \marginpar{\vskip 11.5cm \hbox{\rotatebox{90}{\record}}}
   \vskip -\baselineskip
   \centering
   \protectlinebreak
@@ -414,7 +411,7 @@
 \begin{titlepage}
   \reversemarginpar
   \setlength{\marginparsep}{12mm}
-  \marginpar{\vskip 11cm \hbox{\rotatebox{90}{\record}}}
+  \marginpar{\vskip 11.5cm \hbox{\rotatebox{90}{\record}}}
   \vskip -\baselineskip
   \parbox[t]{0.4\textwidth}{\centering\MakeUppercase{\wordapproved}\\\fullcodeapp}
   \vskip 8cm
@@ -450,14 +447,59 @@
 \newcommand\l@subparagraph{\@dottedtocline{4}{1.5cm}{2cm}}
 \newcommand\l@attachment{\@dottedtocline{1}{0cm}{4cm}}
 
-% РАЗНОЕ
+% ВСТАВЛЯЕМЫЙ КОНТЕНТ
+% Иллюстрация
+% \illustration[title][description][scale]{file}{label}
+\def\illustration{
+  \@ifnextchar[
+    {\illustration@i}
+    {\illustration@i[]}
+}
 
-\newcommand{\illustration}[2][0.8]{
+\def\illustration@i[#1]{
+  \@ifnextchar[
+    {\illustration@ii[#1]}
+    {\illustration@ii[#1][]}
+}
+
+\def\illustration@ii[#1][#2]{
+  \@ifnextchar[
+    {\illustration@iii[#1][#2]}
+    {\illustration@iii[#1][#2][0.8]}
+}
+
+\def\illustration@iii[#1][#2][#3]#4#5{
+  \refstepcounter{illustration}
+  \vspace{6mm}
+  \begin{center}
+    \ifx#1\@empty\else
+      #1 \\[4mm] \nopagebreak
+    \fi
+    \includegraphics[width=#3\textwidth]{#4} \\[4mm] \nopagebreak
+    \ifx#2\@empty\else
+      \parbox{#3\textwidth}{\centering#2} \\[4mm] \nopagebreak
+    \fi
+    Рис. \theillustration.
+    \label{#5}
+  \end{center}
+  \vspace{6mm}
+  \par
+}
+\newcounter{illustration}
+\renewcommand{\theillustration}{\arabic{illustration}}
+
+% Картинка
+% \image{file}
+\newcommand{\image}[2][1]{
+  \vspace{6mm}
   \begin{center}
     \includegraphics[width=#1\textwidth]{#2}
   \end{center}
+  \vspace{6mm}
   \par
 }
+
+% РАЗНОЕ
 
 % Вставка листа утверждения и титульного листа
 \AtBeginDocument{\makeapproval\maketitle}
