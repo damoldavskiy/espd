@@ -33,6 +33,8 @@
 \newcommand{\subsectionsize}{\fontsize{18pt}{18pt}\selectfont}
 \newcommand{\attachmentsize}{\fontsize{18pt}{27pt}\selectfont}
 \newcommand{\tabletextsize}{\fontsize{10pt}{15pt}\selectfont}
+\newcommand{\footnotesize}{\fontsize{8pt}{12pt}\selectfont}
+\newcommand{\footnotetextsize}{\fontsize{10pt}{15pt}\selectfont}
 
 % Бумага
 \setlength{\paperwidth}{210mm}
@@ -52,7 +54,6 @@
 \setlength{\headheight}{10mm}
 \setlength{\headsep}{7.5mm}
 \setlength{\arrayrulewidth}{0.1pt}
-\def\@seccntformat#1{\csname the#1\endcsname\hspace{4mm}}
 
 \DeclareOption{techtask}{
   \type{Техническое задание}
@@ -95,6 +96,7 @@
 \def\wordapproved{Утвержден}
 \def\wordsheets{Листов}
 \def\wordannotation{Аннотация}
+\def\wordterms{Перечень терминов}
 \def\wordcontents{Содержание}
 \def\wordattachment{Приложение}
 \def\wordoriginvnumber{Инв. \textnumero~подл.}
@@ -113,6 +115,8 @@
 \def\wordreplaced{заменен-ных}
 \def\wordnew{новых}
 \def\wordannulled{аннули-рованных}
+\def\wordimage{Рис.}
+\def\wordbibliography{Перечень использованных источников}
 
 % Переменные
 \var{company}
@@ -133,6 +137,10 @@
 \var{city}
 
 % Значения переменных по умолчанию
+\company{Правительство Российской Федерации\\Национальный исследовательский университет\\<<Высшая школа экономики>>}
+\department{Факультет компьютерных наук\\Департамент программной инженерии}
+\director{В.В. Шилов}
+\directorrank{Академический руководитель\\образовательной программы\\<<Программная инженерия>>\\профессор департамента программной\\инженерии, канд. техн. наук}
 \documentnumber{01}
 \partnumber{1}
 
@@ -147,44 +155,6 @@
 
 % МАКРОСЫ ДЛЯ ВНУТРЕННЕГО ИСПОЛЬЗОВАНИЯ
 
-% Переопределенный макрос, не добавляет строку в содержание, если строка пуста. Напрямую не используется
-\def\@sect#1#2#3#4#5#6[#7]#8{%
-  \ifnum #2>\c@secnumdepth
-    \let\@svsec\@empty
-  \else
-    \refstepcounter{#1}%
-    \protected@edef\@svsec{\@seccntformat{#1}\relax}%
-  \fi
-  \@tempskipa #5\relax
-  \ifdim \@tempskipa>\z@
-    \begingroup
-      #6{%
-        \@hangfrom{\hskip #3\relax\@svsec}%
-          \interlinepenalty \@M #8\@@par}%
-    \endgroup
-    \csname #1mark\endcsname{#7}%
-    \ifx#7\@empty \else
-      \addcontentsline{toc}{#1}{%
-        \ifnum #2>\c@secnumdepth \else
-          \protect\numberline{\csname the#1\endcsname}%
-        \fi
-        #7}%
-    \fi
-  \else
-    \def\@svsechd{%
-      #6{\hskip #3\relax
-      \@svsec #8}%
-      \csname #1mark\endcsname{#7}%
-      \ifx#7\@empty \else
-        \addcontentsline{toc}{#1}{%
-          \ifnum #2>\c@secnumdepth \else
-            \protect\numberline{\csname the#1\endcsname}%
-          \fi
-          #7}}%
-      \fi
-  \fi
-  \@xsect{#5}}
-
 % Модификация перевода строки для использования \centering и \MakeUppercase
 % \protectlinebreak
 \def\protectlinebreak{
@@ -193,29 +163,35 @@
 }
 
 % Вставляет приложение без нумерации
-% \writeattachmentnotnum{description}{title}
-\def\writeattachmentnonum#1#2{
+% \writeattachmentnotnum{description}{title}{label}
+\def\writeattachmentnonum#1#2#3{
   \refstepcounter{attachment}
   \hfill{\textbf{\MakeUppercase{\wordattachment}}}\vspace{-4mm} \\
   \null\hfill #1 \\
   {
     \attachmentsize\bfseries\centering\MakeUppercase{#2}\par
   }
-  \addcontentsline{toc}{attachment}{\MakeUppercase{\numberline{\wordattachment.}}#2}
-  \label{lastattachment}
+  \addcontentsline{toc}{attachment}{\wordattachment.~#2}
+  \ifx#3\@empty\else
+    \label{#3}
+  \fi
+  %\label{lastattachment}
 }
 
 % Вставляет приложение с нумерацией
-% \writeattachmentnum{description}{title}
-\def\writeattachmentnum#1#2{
+% \writeattachmentnum{description}{title}{label}
+\def\writeattachmentnum#1#2#3{
   \refstepcounter{attachment}
   \hfill{\textbf{\MakeUppercase{\wordattachment~\theattachment}}}\vspace{-4mm} \\
   \null\hfill #1 \\
   {
     \attachmentsize\bfseries\centering\MakeUppercase{#2}\par
   }
-  \addcontentsline{toc}{attachment}{\MakeUppercase{\numberline{\wordattachment~\theattachment.}}#2}
-  \label{lastattachment}
+  \addcontentsline{toc}{attachment}{\wordattachment~\theattachment.~#2}
+  \ifx#3\@empty\else
+    \label{#3}
+  \fi
+  %\label{lastattachment}
 }
 
 % Упрощение макроса \@setref
@@ -225,13 +201,13 @@
 \def\refnum#1{\expandafter\@setrefnum\csname r@#1\endcsname\@firstoftwo{#1}}
 
 % Вставляет приложение
-% \attachment{description}{title}
-\newcommand{\attachment}[2]{
+% \attachment{description}{title}{label}
+\newcommand{\attachment}[3]{
   \newpage
   \if1\refnum{lastattachment}
-    \writeattachmentnonum{#1}{#2}
+    \writeattachmentnonum{#1}{#2}{#3}
   \else
-    \writeattachmentnum{#1}{#2}
+    \writeattachmentnum{#1}{#2}{#3}
   \fi
 }
 
@@ -245,6 +221,22 @@
 % \def{width}{height}{realheight}{text}
 \def\vcell#1#2#3#4{\parbox[c][#3][b]{#1}{\vbox to #2{\cell{#1}{#2}{#4}\vss}}}
 
+\def\writesection#1{
+  \newpage
+  \begin{center}
+    \centering\sectionsize\bfseries\MakeUppercase{#1}
+  \end{center}
+  \par
+}
+
+\def\writesubsection#1{
+  \par
+  \vspace{4mm}
+  {\subsectionsize\bfseries#1}
+  \vspace{2mm}
+  \par
+}
+
 % СЕКЦИОНИРОВАНИЕ
 
 % Счетчики
@@ -256,18 +248,61 @@
 \newcounter{attachment}
 
 % Разделы, подразделы, пункты и подпункты
-\renewcommand{\thesection}{\arabic{section}.}
-\renewcommand{\thesubsection}{\arabic{section}.\arabic{subsection}.}
-\renewcommand{\theparagraph}{\arabic{section}.\arabic{subsection}.\arabic{paragraph}.}
-\renewcommand{\thesubparagraph}{\arabic{section}.\arabic{subsection}.\arabic{paragraph}.\arabic{subparagraph}.}
+\renewcommand{\thesection}{\arabic{section}}
+\renewcommand{\thesubsection}{\arabic{section}.\arabic{subsection}}
+\renewcommand{\theparagraph}{\arabic{section}.\arabic{subsection}.\arabic{paragraph}}
+\renewcommand{\thesubparagraph}{\arabic{section}.\arabic{subsection}.\arabic{paragraph}.\arabic{subparagraph}}
 \renewcommand{\theattachment}{\arabic{attachment}}
-\newcommand{\section}{\newpage\@startsection{section}{1}{\parindent}{\z@}{4mm}{\centering\sectionsize\bfseries\MakeUppercase}}
-\newcommand{\subsection}{\@startsection{subsection}{2}{\parindent}{4mm}{2mm}{\subsectionsize\bfseries}}
-\newcommand{\paragraph}{\@startsection{paragraph}{3}{\parindent}{4mm}{2mm}{\subsectionsize\bfseries}}
-\newcommand{\subparagraph}{\@startsection{subparagraph}{4}{\parindent}{4mm}{2mm}{\subsectionsize\bfseries}}
+\newcommand{\numsection}{\thesection.}
+\newcommand{\numsubsection}{\thesubsection.}
+\newcommand{\numparagraph}{\theparagraph.}
+\newcommand{\numsubparagraph}{\thesubparagraph.}
+\newcommand{\section}[1]{
+  \ifx&#1&
+    \ClassError
+      {espd}
+      {Empty section title}
+      {According to GOST 19.106-78, section title can not be empty}
+  \fi
+  \refstepcounter{section}
+  \writesection{\numsection~#1}
+  \addcontentsline{toc}{section}{\numsection~#1}
+}
+\newcommand{\subsection}[1]{
+  \ifx&#1&
+    \ClassError
+      {espd}
+      {Empty subsection title}
+      {According to GOST 19.106-78, subsection title can not be empty}
+  \fi
+  \refstepcounter{subsection}
+  \writesubsection{\numsubsection~#1}
+  \addcontentsline{toc}{subsection}{\numsubsection~#1}
+}
+\newcommand{\paragraph}[1]{
+  \refstepcounter{paragraph}
+  \writesubsection{\numparagraph~#1}
+  \ifx&#1&\else
+    \addcontentsline{toc}{paragraph}{\numparagraph~#1}
+  \fi
+}
+\newcommand{\subparagraph}[1]{
+  \refstepcounter{subparagraph}
+  \writesubsection{\numsubparagraph~#1}
+  \ifx&#1&\else
+    \addcontentsline{toc}{subparagraph}{\numsubparagraph~#1}
+  \fi
+}
 
 % Аннотация
-\newcommand{\annotation}{\newpage{\centering\sectionsize\bfseries\MakeUppercase{\wordannotation}\par}}
+\newcommand{\annotation}{\writesection{\wordannotation}}
+
+% Перечень терминов
+\newcommand{\terms}{
+  \writesection{\wordterms}
+  \addcontentsline{toc}{section}{\wordterms}
+}
+\newcommand{\term}[2]{\textbf{#1} -- #2. \par}
 
 % Лист регистрации изменений
 \newcommand{\registration}{
@@ -438,16 +473,17 @@
 \setcounter{tocdepth}{4}
 \newcommand\tableofcontents{
   \newpage
-  \section*{\wordcontents}
+  \writesection{\wordcontents}
   \@starttoc{toc}
 }
 \newcommand\l@section{\@dottedtocline{1}{0cm}{0.5cm}}
 \newcommand\l@subsection{\@dottedtocline{2}{0.5cm}{1cm}}
 \newcommand\l@paragraph{\@dottedtocline{3}{1cm}{1.5cm}}
 \newcommand\l@subparagraph{\@dottedtocline{4}{1.5cm}{2cm}}
-\newcommand\l@attachment{\@dottedtocline{1}{0cm}{4cm}}
+\newcommand\l@attachment{\@dottedtocline{1}{0cm}{3cm}}
 
 % ВСТАВЛЯЕМЫЙ КОНТЕНТ
+
 % Иллюстрация
 % \illustration[title][description][scale]{file}{label}
 \def\illustration{
@@ -472,15 +508,22 @@
   \refstepcounter{illustration}
   \vspace{6mm}
   \begin{center}
-    \ifx#1\@empty\else
-      #1 \\[4mm] \nopagebreak
+    \ifx&#1&\else
+      #1 \nopagebreak \\
     \fi
-    \includegraphics[width=#3\textwidth]{#4} \\[4mm] \nopagebreak
-    \ifx#2\@empty\else
-      \parbox{#3\textwidth}{\centering#2} \\[4mm] \nopagebreak
+    \vspace{4mm}
+    \includegraphics[width=#3\textwidth]{#4} \nopagebreak
+    \ifx&#2&\else
+      \\\vspace{4mm}
+      \parbox{#3\textwidth}{\centering#2} \nopagebreak
     \fi
-    Рис. \theillustration.
-    \label{#5}
+    \\\vspace{4mm}
+    \if1\refnum{lastillustration}\else
+      \wordimage~\theillustration.
+    \fi
+    \ifx&#5&\else
+      \label{#5}
+    \fi
   \end{center}
   \vspace{6mm}
   \par
@@ -501,10 +544,47 @@
 
 % РАЗНОЕ
 
+% Сноски
+\renewcommand{\footnoterule}{\rule{3cm}{0.1pt}\vskip 2mm}
+\def\@makefnmark{\@textsuperscript{\footnotesize\@thefnmark)}}
+\def\@makefntext#1{\hskip 1cm\@makefnmark\footnotetextsize#1}
+
+% Перечисления
+\def\theenumi{\arabic{enumi}}
+\def\p@enumi{\theenumi}
+\def\labelenumi{\theenumi)}
+\setlength{\labelsep}{5mm}
+\setlength{\labelwidth}{-\parindent}
+\addtolength{\labelwidth}{-\labelsep}
+\addtolength{\labelwidth}{-4mm}
+
+% Библиография
+\newcommand\newblock{\hskip .11em\@plus.33em\@minus.07em}
+\newenvironment{thebibliography}[1]
+{
+  \writesection{\wordbibliography}
+  \list{\@biblabel{\@arabic\c@enumiv}}
+    {\settowidth\labelwidth{\@biblabel{#1}}
+     \leftmargin\labelwidth
+     \advance\leftmargin\labelsep
+     \usecounter{enumiv}
+     \let\p@enumiv\@empty
+     \renewcommand\theenumiv{\@arabic\c@enumiv}}
+}
+{
+  \endlist
+  \addcontentsline{toc}{section}{\wordbibliography}
+}
+
 % Вставка листа утверждения и титульного листа
 \AtBeginDocument{\makeapproval\maketitle}
-% Вставка листа о регистрации изменений и указателя на последнюю страницу
-\AtEndDocument{\registration\label{lastpage}}
+% Вставка листа о регистрации изменений и указателей на последние элементы
+\AtEndDocument{
+  \registration
+  \label{lastpage}
+  \write\@auxout{\string\newlabel{lastattachment}{{\theattachment}{}}}
+  \write\@auxout{\string\newlabel{lastillustration}{{\theillustration}{}}}
+}
 
 % Колонтитулы и нумерация
 \def\ps@default{
