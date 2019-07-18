@@ -28,10 +28,10 @@
 % Размеры шрифта
 \renewcommand{\normalsize}{\fontsize{12pt}{18pt}\selectfont}
 \newcommand{\titlesize}{\fontsize{14pt}{21pt}\selectfont}
-\newcommand{\approvalsize}{\fontsize{16pt}{24pt}\selectfont}
-\newcommand{\sectionsize}{\fontsize{20pt}{20pt}\selectfont}
-\newcommand{\subsectionsize}{\fontsize{18pt}{18pt}\selectfont}
-\newcommand{\attachmentsize}{\fontsize{18pt}{27pt}\selectfont}
+\newcommand{\approvalsize}{\fontsize{17pt}{24pt}\selectfont}
+\newcommand{\sectionsize}{\fontsize{17pt}{18pt}\selectfont}
+\newcommand{\subsectionsize}{\fontsize{14pt}{16pt}\selectfont}
+\newcommand{\attachmentsize}{\fontsize{17pt}{24pt}\selectfont}
 \newcommand{\tabletextsize}{\fontsize{10pt}{15pt}\selectfont}
 \newcommand{\footnotesize}{\fontsize{8pt}{12pt}\selectfont}
 \newcommand{\footnotetextsize}{\fontsize{10pt}{15pt}\selectfont}
@@ -54,6 +54,7 @@
 \setlength{\headheight}{10mm}
 \setlength{\headsep}{7.5mm}
 \setlength{\arrayrulewidth}{0.1pt}
+\raggedbottom
 
 \DeclareOption{techtask}{
   \type{Техническое задание}
@@ -162,6 +163,26 @@
   \renewcommand{\\}{\protect\defaultlinebreak}
 }
 
+% Модификация стандартного макроса \@dottedtocline с первым параметром набором стилей
+\def\@dottedtoclinestyle#1#2#3#4#5#6{%
+  \ifnum #2>\c@tocdepth \else
+    \vskip \z@ \@plus.2\p@
+    {\leftskip #3\relax \rightskip \@tocrmarg \parfillskip -\rightskip
+     \parindent #3\relax\@afterindenttrue
+     \interlinepenalty\@M
+     \leavevmode
+     \@tempdima #4\relax
+     \advance\leftskip \@tempdima \null\nobreak\hskip -\leftskip
+     #1{#5}\nobreak
+     \leaders\hbox{$\m@th
+        \mkern \@dotsep mu\hbox{.}\mkern \@dotsep
+        mu$}\hfill
+     \nobreak
+     \hb@xt@\@pnumwidth{\hfil\normalfont \normalcolor #6%
+                        \kern-\p@\kern\p@}%
+     \par}%
+  \fi}
+
 % Вставляет приложение без нумерации
 % \writeattachmentnotnum{description}{title}{label}
 \def\writeattachmentnonum#1#2#3{
@@ -169,13 +190,12 @@
   \hfill{\textbf{\MakeUppercase{\wordattachment}}}\vspace{-4mm} \\
   \null\hfill #1 \\
   {
-    \attachmentsize\bfseries\centering\MakeUppercase{#2}\par
+    \attachmentsize\bfseries\centering#2\par
   }
   \addcontentsline{toc}{attachment}{\wordattachment.~#2}
-  \ifx#3\@empty\else
+  \ifx&#3&\else
     \label{#3}
   \fi
-  %\label{lastattachment}
 }
 
 % Вставляет приложение с нумерацией
@@ -185,13 +205,12 @@
   \hfill{\textbf{\MakeUppercase{\wordattachment~\theattachment}}}\vspace{-4mm} \\
   \null\hfill #1 \\
   {
-    \attachmentsize\bfseries\centering\MakeUppercase{#2}\par
+    \attachmentsize\bfseries\centering#2\par
   }
   \addcontentsline{toc}{attachment}{\wordattachment~\theattachment.~#2}
-  \ifx#3\@empty\else
+  \ifx&#3&\else
     \label{#3}
   \fi
-  %\label{lastattachment}
 }
 
 % Упрощение макроса \@setref
@@ -230,11 +249,16 @@
 }
 
 \def\writesubsection#1{
+  \begingroup
   \par
+  \parindent -1cm
+  \leftskip 2cm
+  \interlinepenalty\@M
   \vspace{4mm}
-  {\subsectionsize\bfseries#1}
+  {\subsectionsize\bfseries#1}%
   \vspace{2mm}
   \par
+  \endgroup
 }
 
 % СЕКЦИОНИРОВАНИЕ
@@ -300,7 +324,7 @@
 % Перечень терминов
 \newcommand{\terms}{
   \writesection{\wordterms}
-  \addcontentsline{toc}{section}{\wordterms}
+  \addcontentsline{toc}{attachment}{\wordterms}
 }
 \newcommand{\term}[2]{\textbf{#1} -- #2. \par}
 
@@ -476,7 +500,7 @@
   \writesection{\wordcontents}
   \@starttoc{toc}
 }
-\newcommand\l@section{\@dottedtocline{1}{0cm}{0.5cm}}
+\newcommand\l@section{\@dottedtoclinestyle{\bfseries}{1}{0cm}{0.5cm}}
 \newcommand\l@subsection{\@dottedtocline{2}{0.5cm}{1cm}}
 \newcommand\l@paragraph{\@dottedtocline{3}{1cm}{1.5cm}}
 \newcommand\l@subparagraph{\@dottedtocline{4}{1.5cm}{2cm}}
@@ -573,7 +597,7 @@
 }
 {
   \endlist
-  \addcontentsline{toc}{section}{\wordbibliography}
+  \addcontentsline{toc}{attachment}{\wordbibliography}
 }
 
 % Вставка листа утверждения и титульного листа
