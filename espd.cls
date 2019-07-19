@@ -1,5 +1,5 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{espd}[2019/07/15 GOST 19]
+\ProvidesClass{espd}[2019/07/19 GOST 19]
 \RequirePackage[T2A]{fontenc}
 \RequirePackage{graphicx}
 
@@ -54,6 +54,9 @@
 \setlength{\headheight}{10mm}
 \setlength{\headsep}{7.5mm}
 \setlength{\arrayrulewidth}{0.1pt}
+\newlength{\tabmarg}
+\setlength{\tabmarg}{2mm}
+\setlength{\tabcolsep}{\tabmarg}
 \raggedbottom
 
 \DeclareOption{techtask}{
@@ -178,7 +181,7 @@
         \mkern \@dotsep mu\hbox{.}\mkern \@dotsep
         mu$}\hfill
      \nobreak
-     \hb@xt@\@pnumwidth{\hfil\normalfont \normalcolor #6%
+     \hb@xt@\@pnumwidth{\hfil\normalfont \normalcolor #1#6%
                         \kern-\p@\kern\p@}%
      \par}%
   \fi}
@@ -333,6 +336,7 @@
   \newpage
   \tabletextsize
   \renewcommand{\baselinestretch}{0.6}\selectfont
+  \setlength{\tabcolsep}{0mm}
   \hbox{
   \noindent
     \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}
@@ -399,11 +403,13 @@
       \hline
     \end{tabular}
   }
+  \setlength{\tabcolsep}{\tabmarg}
 }
 
 % Штамп для учета
 \newcommand{\record}{
   \tabletextsize
+  \setlength{\tabcolsep}{0mm}
   \itshape
   \begin{tabular}{|p{25mm}|p{35mm}|p{25mm}|p{25mm}|p{35mm}|}
     \hline
@@ -412,6 +418,7 @@
     \cell{25mm}{7mm}{} & & & & \\
     \hline
   \end{tabular}%
+  \setlength{\tabcolsep}{\tabmarg}
 }
 
 % Окружение для страниц информационной части
@@ -419,10 +426,12 @@
 {
   \thispagestyle{empty}
   \setcounter{page}{0}
+  \setlength{\tabcolsep}{0mm}
   \renewcommand{\baselinestretch}{0.8}\selectfont
 }
 {
   \newpage
+  \setlength{\tabcolsep}{\tabmarg}
   \renewcommand{\baselinestretch}{1}\selectfont
 }
 
@@ -584,6 +593,7 @@
 
 % Библиография
 \newcommand\newblock{\hskip .11em\@plus.33em\@minus.07em}
+\def\@biblabel#1{#1.}
 \newenvironment{thebibliography}[1]
 {
   \writesection{\wordbibliography}
