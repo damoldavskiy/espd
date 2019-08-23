@@ -101,6 +101,7 @@
 \def\wordsheets{Листов}
 \def\wordannotation{Аннотация}
 \def\wordterms{Перечень терминов}
+\def\wordabbreviations{Перечень сокращений}
 \def\wordcontents{Содержание}
 \def\wordattachment{Приложение}
 \def\wordoriginvnumber{Инв. \textnumero~подл.}
@@ -166,26 +167,6 @@
   \renewcommand{\\}{\protect\defaultlinebreak}
 }
 
-% Модификация стандартного макроса \@dottedtocline с первым параметром набором стилей
-\def\@dottedtoclinestyle#1#2#3#4#5#6{%
-  \ifnum #2>\c@tocdepth \else
-    \vskip \z@ \@plus.2\p@
-    {\leftskip #3\relax \rightskip \@tocrmarg \parfillskip -\rightskip
-     \parindent #3\relax\@afterindenttrue
-     \interlinepenalty\@M
-     \leavevmode
-     \@tempdima #4\relax
-     \advance\leftskip \@tempdima \null\nobreak\hskip -\leftskip
-     #1{#5}\nobreak
-     \leaders\hbox{$\m@th
-        \mkern \@dotsep mu\hbox{.}\mkern \@dotsep
-        mu$}\hfill
-     \nobreak
-     \hb@xt@\@pnumwidth{\hfil\normalfont \normalcolor #1#6%
-                        \kern-\p@\kern\p@}%
-     \par}%
-  \fi}
-
 % Вставляет приложение без нумерации
 % \writeattachmentnotnum{description}{title}{label}
 \def\writeattachmentnonum#1#2#3{
@@ -223,8 +204,14 @@
 \def\refnum#1{\expandafter\@setrefnum\csname r@#1\endcsname\@firstoftwo{#1}}
 
 % Вставляет приложение
-% \attachment{description}{title}{label}
-\newcommand{\attachment}[3]{
+% \attachment{description}{title}[label]
+\def\attachment#1#2{
+  \@ifnextchar[
+    {\attachment@i{#1}{#2}}
+    {\attachment@i{#1}{#2}[]}
+}
+
+\def\attachment@i#1#2[#3]{
   \newpage
   \if1\refnum{lastattachment}
     \writeattachmentnonum{#1}{#2}{#3}
@@ -325,15 +312,28 @@
 \newcommand{\annotation}{\writesection{\wordannotation}}
 
 % Перечень терминов
-\newcommand{\terms}{
+\newenvironment{terms}
+{
   \writesection{\wordterms}
   \addcontentsline{toc}{attachment}{\wordterms}
 }
+{
+}
 \newcommand{\term}[2]{\textbf{#1} -- #2. \par}
+
+% Перечень сокращений
+\newenvironment{abbreviations}
+{
+  \writesection{\wordabbreviations}
+  \addcontentsline{toc}{attachment}{\wordabbreviations}
+}
+{
+}
 
 % Лист регистрации изменений
 \newcommand{\registration}{
   \newpage
+  \thispagestyle{empty}
   \tabletextsize
   \renewcommand{\baselinestretch}{0.6}\selectfont
   \setlength{\tabcolsep}{0mm}
@@ -509,7 +509,7 @@
   \writesection{\wordcontents}
   \@starttoc{toc}
 }
-\newcommand\l@section{\@dottedtoclinestyle{\bfseries}{1}{0cm}{0.5cm}}
+\newcommand\l@section[1]{\@dottedtocline{1}{0cm}{0.5cm}{\textbf{#1}}}
 \newcommand\l@subsection{\@dottedtocline{2}{0.5cm}{1cm}}
 \newcommand\l@paragraph{\@dottedtocline{3}{1cm}{1.5cm}}
 \newcommand\l@subparagraph{\@dottedtocline{4}{1.5cm}{2cm}}
@@ -518,7 +518,7 @@
 % ВСТАВЛЯЕМЫЙ КОНТЕНТ
 
 % Иллюстрация
-% \illustration[title][description][scale]{file}{label}
+% \illustration[title][description][scale]{file}[label]
 \def\illustration{
   \@ifnextchar[
     {\illustration@i}
@@ -537,7 +537,13 @@
     {\illustration@iii[#1][#2][0.8]}
 }
 
-\def\illustration@iii[#1][#2][#3]#4#5{
+\def\illustration@iii[#1][#2][#3]#4{
+  \@ifnextchar[
+    {\illustration@iv[#1][#2][#3]#4}
+    {\illustration@iv[#1][#2][#3]#4[]}
+}
+
+\def\illustration@iv[#1][#2][#3]#4[#5]{
   \refstepcounter{illustration}
   \vspace{6mm}
   \begin{center}
@@ -565,7 +571,7 @@
 \renewcommand{\theillustration}{\arabic{illustration}}
 
 % Картинка
-% \image{file}
+% \image[scale]{file}
 \newcommand{\image}[2][1]{
   \vspace{6mm}
   \begin{center}
