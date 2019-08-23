@@ -337,8 +337,7 @@
   \tabletextsize
   \renewcommand{\baselinestretch}{0.6}\selectfont
   \setlength{\tabcolsep}{0mm}
-  \hbox{
-  \noindent
+  \hbox{%
     \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}
       \hline
       \multicolumn{10}{|c|}{\cell{185mm}{10mm}{\normalsize \wordregistration}} \\
