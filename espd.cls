@@ -1,5 +1,5 @@
-\NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{espd}[2019/07/19 GOST 19]
+﻿\NeedsTeXFormat{LaTeX2e}
+\ProvidesClass{espd}[2019/08/24 GOST 19]
 \RequirePackage[T2A]{fontenc}
 \RequirePackage{graphicx}
 
@@ -22,6 +22,18 @@
       {No \@backslashchar#1 given}
       {You should specify #1 by typing \@backslashchar#1{#1 name} in the preamble}}
 }
+
+% Пишет в AUX файл данную пару ключ-значение
+% \set{key}{val}
+\def\set#1#2{\write\@auxout{\string\newlabel{#1}{#2}}}
+
+% Получает из AUX файла значение по ключу
+% \get{key}
+\def\get#1{\csname r@#1\endcsname}
+
+% Получает из AUX файла значение по ключу (по умолчанию 0)
+% \get{key}
+\def\getnum#1{\ifcsname r@#1\endcsname \csname r@#1\endcsname \else 0 \fi}
 
 % ПЕРЕМЕННЫЕ И КОНСТАНТЫ
 
@@ -59,35 +71,6 @@
 \setlength{\tabcolsep}{\tabmarg}
 \raggedbottom
 
-\DeclareOption{techtask}{
-  \type{Техническое задание}
-  \typecode{ТЗ}
-}
-\DeclareOption{listing}{
-  \type{Текст программы}
-  \typecode{12}
-}
-\DeclareOption{progmanual}{
-  \type{Руководство программиста}
-  \typecode{33}
-}
-\DeclareOption{opermanual}{
-  \type{Руководство оператора}
-  \typecode{34}
-}
-\DeclareOption{langdesc}{
-  \type{Описание языка}
-  \typecode{35}
-}
-\DeclareOption{testmethods}{
-  \type{Программа и методика испытаний}
-  \typecode{51}
-}
-\DeclareOption{explnote}{
-  \type{Пояснительная записка}
-  \typecode{81}
-}
-
 % Константы
 \def\wordagree{Согласовано}
 \def\wordapprove{Утверждаю}
@@ -121,6 +104,7 @@
 \def\wordnew{новых}
 \def\wordannulled{аннули-рованных}
 \def\wordimage{Рис.}
+\def\wordrefimage{рис.~}
 \def\wordbibliography{Перечень использованных источников}
 
 % Переменные
@@ -148,6 +132,35 @@
 \directorrank{Академический руководитель\\образовательной программы\\<<Программная инженерия>>\\профессор департамента программной\\инженерии, канд. техн. наук}
 \documentnumber{01}
 \partnumber{1}
+
+\DeclareOption{techtask}{
+  \type{Техническое задание}
+  \typecode{ТЗ}
+}
+\DeclareOption{listing}{
+  \type{Текст программы}
+  \typecode{12}
+}
+\DeclareOption{progmanual}{
+  \type{Руководство программиста}
+  \typecode{33}
+}
+\DeclareOption{opermanual}{
+  \type{Руководство оператора}
+  \typecode{34}
+}
+\DeclareOption{langdesc}{
+  \type{Описание языка}
+  \typecode{35}
+}
+\DeclareOption{testmethods}{
+  \type{Программа и методика испытаний}
+  \typecode{51}
+}
+\DeclareOption{explnote}{
+  \type{Пояснительная записка}
+  \typecode{81}
+}
 
 % Код документа
 \def\fullcode{\@code~\@typecode~\@documentnumber-\@partnumber}
@@ -197,12 +210,6 @@
   \fi
 }
 
-% Упрощение макроса \@setref
-\def\@setrefnum#1#2#3{\expandafter#2#1}
-% Возвращает номер ссылки
-% \refnum{label}
-\def\refnum#1{\expandafter\@setrefnum\csname r@#1\endcsname\@firstoftwo{#1}}
-
 % Вставляет приложение
 % \attachment{description}{title}[label]
 \def\attachment#1#2{
@@ -213,7 +220,7 @@
 
 \def\attachment@i#1#2[#3]{
   \newpage
-  \if1\refnum{lastattachment}
+  \ifnum\getnum{lastattachment}=1
     \writeattachmentnonum{#1}{#2}{#3}
   \else
     \writeattachmentnum{#1}{#2}{#3}
@@ -333,7 +340,6 @@
 % Лист регистрации изменений
 \newcommand{\registration}{
   \newpage
-  \thispagestyle{empty}
   \tabletextsize
   \renewcommand{\baselinestretch}{0.6}\selectfont
   \setlength{\tabcolsep}{0mm}
@@ -490,7 +496,7 @@
   \vskip 4mm
   \textbf{\fullcode}
   \vskip 4mm
-  \textbf{\wordsheets~\pageref{lastpage}}
+  \textbf{\wordsheets~\getnum{lastpage}}
   \vskip \fill
   \@city~\@year
   \vskip 5mm
@@ -556,8 +562,9 @@
       \parbox{#3\textwidth}{\centering#2} \nopagebreak
     \fi
     \\\vspace{4mm}
-    \if1\refnum{lastillustration}\else
-      \wordimage~\theillustration.
+    \ifnum\getnum{lastillustration}=1
+    \else
+      \wordimage~\arabic{illustration}.
     \fi
     \ifx&#5&\else
       \label{#5}
@@ -567,7 +574,7 @@
   \par
 }
 \newcounter{illustration}
-\renewcommand{\theillustration}{\arabic{illustration}}
+\renewcommand{\theillustration}{\wordrefimage\arabic{illustration}}
 
 % Картинка
 % \image[scale]{file}
@@ -617,12 +624,13 @@
 
 % Вставка листа утверждения и титульного листа
 \AtBeginDocument{\makeapproval\maketitle}
+
 % Вставка листа о регистрации изменений и указателей на последние элементы
 \AtEndDocument{
   \registration
-  \label{lastpage}
-  \write\@auxout{\string\newlabel{lastattachment}{{\theattachment}{}}}
-  \write\@auxout{\string\newlabel{lastillustration}{{\theillustration}{}}}
+  \set{lastpage}{\thepage}
+  \set{lastattachment}{\arabic{attachment}}
+  \set{lastillustration}{\arabic{illustration}}
 }
 
 % Колонтитулы и нумерация
@@ -639,5 +647,6 @@
   \let\@evenhead\@oddhead
   \let\@evenfoot\@oddfoot
 }
+
 \pagestyle{default}
 \pagenumbering{arabic}
