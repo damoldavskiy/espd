@@ -1,5 +1,6 @@
-﻿\NeedsTeXFormat{LaTeX2e}
+\NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{espd}[2019/08/24 GOST 19]
+\RequirePackage[utf8]{inputenc}
 \RequirePackage[T2A]{fontenc}
 \RequirePackage{graphicx}
 
