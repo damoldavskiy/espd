@@ -119,6 +119,9 @@
 \var{title}
 \var{type}
 \var{typecode}
+\var{countrycode}
+\var{organizationcode}
+\var{redaction}
 \var{documentnumber}
 \var{partnumber}
 \var{code}
@@ -131,6 +134,9 @@
 \department{Факультет компьютерных наук\\Департамент программной инженерии}
 \director{В.В. Шилов}
 \directorrank{Академический руководитель\\образовательной программы\\<<Программная инженерия>>\\профессор департамента программной\\инженерии, канд. техн. наук}
+\countrycode{RU}
+\organizationcode{17701729}
+\redaction{01}
 \documentnumber{01}
 \partnumber{1}
 
@@ -164,7 +170,7 @@
 }
 
 % Код документа
-\def\fullcode{\@code~\@typecode~\@documentnumber-\@partnumber}
+\def\fullcode{\@countrycode.\@organizationcode.\@code-\@redaction~\@typecode~\@documentnumber-\@partnumber}
 
 % Код документа с постфиксом листа утверждения
 \def\fullcodeapp{\fullcode\wordapprovalpostfix}
