@@ -611,6 +611,7 @@
 \addtolength{\labelwidth}{-4mm}
 
 % Библиография
+\def\url{\texttt}
 \newcommand\newblock{\hskip .11em\@plus.33em\@minus.07em}
 \def\@biblabel#1{#1.}
 \newenvironment{thebibliography}[1]
