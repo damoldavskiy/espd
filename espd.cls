@@ -24,6 +24,15 @@
       {You should specify #1 by typing \@backslashchar#1{#1 name} in the preamble}}
 }
 
+% Создает переменную, задается \cmd{val}, возвращается \@cmd (по умолчанию - пустая строка)
+% \var{cmd}
+\def\varempty#1{
+  \expandafter
+  \def\csname #1\endcsname##1{\expandafter\def\csname @#1\endcsname{##1}}
+  \expandafter
+  \def\csname @#1\endcsname{}
+}
+
 % Пишет в AUX файл данную пару ключ-значение
 % \set{key}{val}
 \def\set#1#2{\write\@auxout{\string\newlabel{#1}{#2}}}
@@ -81,6 +90,7 @@
 \def\wordapproval{Лист утверждения}
 \def\wordapprovalpostfix{-ЛУ}
 \def\wordperformer{Исполнитель}
+\def\wordperformers{Исполнители}
 \def\wordapproved{Утвержден}
 \def\wordsheets{Листов}
 \def\wordannotation{Аннотация}
@@ -128,6 +138,16 @@
 \var{author}
 \var{authorrank}
 \var{city}
+\varempty{authori}
+\varempty{authorii}
+\varempty{authoriii}
+\varempty{authoriv}
+\varempty{authorv}
+\varempty{authorranki}
+\varempty{authorrankii}
+\varempty{authorrankiii}
+\varempty{authorrankiv}
+\varempty{authorrankv}
 
 % Значения переменных по умолчанию
 \company{Правительство Российской Федерации\\Национальный исследовательский университет\\<<Высшая школа экономики>>}
@@ -179,6 +199,20 @@
 \ProcessOptions*
 
 % МАКРОСЫ ДЛЯ ВНУТРЕННЕГО ИСПОЛЬЗОВАНИЯ
+
+% Вставляет должность и место для подписи для исполнителя
+% \titleauthorraw{author}{authorrank}
+\def\titleauthorraw#1#2{
+  \vskip 1mm #2\\\rule{4cm}{0.1pt}/#1/\\\wordopenquote\rule{8mm}{0.1pt}\wordclosequote~\rule{4cm}{0.1pt} \@year~\wordyear\\
+}
+
+% То же, но делает проверку на пустоту строк
+% \titleauthor{author}{authorrank}
+\def\titleauthor#1#2{
+  \if&#1#2&\else%
+    \titleauthorraw{#1}{#2}
+  \fi
+}
 
 % Модификация перевода строки для использования \centering и \MakeUppercase
 % \protectlinebreak
@@ -476,9 +510,12 @@
   \approvalsize\textbf{\MakeUppercase{\wordapproval}}
   \vskip 4mm
   \normalsize\textbf{\fullcodeapp}
-  \vskip 3cm
+  \vskip \fill
   \begin{tabular}{c c}
-    \makebox[0.5\textwidth]{} & \parbox[t]{0.5\textwidth}{\centering\wordperformer\\\@authorrank\\\rule{4cm}{0.1pt}/\@author/\\\wordopenquote\rule{8mm}{0.1pt}\wordclosequote~\rule{4cm}{0.1pt} \@year~\wordyear}
+    \makebox[0.5\textwidth]{} & \parbox[t]{0.5\textwidth}{\centering\if&\@authori\@authorii\@authoriii\@authoriv\@authorv\@authorranki\@authorrankii\@authorrankiii\@authorrankiv\@authorrankv&
+      \wordperformer\\\titleauthor{\@author}{\@authorrank}
+    \else
+      \wordperformers\\\titleauthor{\@authori}{\@authorranki}\titleauthor{\@authorii}{\@authorrankii}\titleauthor{\@authoriii}{\@authorrankiii}\titleauthor{\@authoriv}{\@authorrankiv}\titleauthor{\@authorv}{\@authorrankv}\fi}
   \end{tabular}
   \vskip \fill
   \@city~\@year
